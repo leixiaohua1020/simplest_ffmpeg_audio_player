@@ -2,19 +2,6 @@
  * 最简单的基于FFmpeg的音频播放器 2 (SDL 2.0)
  * Simplest FFmpeg Audio Player 2 (SDL 2.0)
  *
- * 该版本使用SDL 2.0替换了第一个版本中的SDL 1.0。
- * 注意：SDL 2.0中音频解码的API并无变化。唯一变化的地方在于
- * 其回调函数的中的Audio Buffer并没有完全初始化，需要手动初始化。
- * 本例子中即SDL_memset(stream, 0, len);
- * 
- * This version use SDL 2.0 instead of SDL 1.2 in version 1
- * Note:The good news for audio is that, with one exception, 
- * it's entirely backwards compatible with 1.2.
- * That one really important exception: The audio callback 
- * does NOT start with a fully initialized buffer anymore. 
- * You must fully write to the buffer in all cases. In this 
- * example it is SDL_memset(stream, 0, len);
- *
  * 雷霄骅 Lei Xiaohua
  * leixiaohua1020@126.com
  * 中国传媒大学/数字电视技术
@@ -22,8 +9,24 @@
  * http://blog.csdn.net/leixiaohua1020
  *
  * 本程序实现了音频的解码和播放。
+ * 是最简单的FFmpeg音频解码方面的教程。
+ * 通过学习本例子可以了解FFmpeg的解码流程。
+ *
+ * 该版本使用SDL 2.0替换了第一个版本中的SDL 1.0。
+ * 注意：SDL 2.0中音频解码的API并无变化。唯一变化的地方在于
+ * 其回调函数的中的Audio Buffer并没有完全初始化，需要手动初始化。
+ * 本例子中即SDL_memset(stream, 0, len);
  *
  * This software decode and play audio streams.
+ * Suitable for beginner of FFmpeg.
+ *
+ * This version use SDL 2.0 instead of SDL 1.2 in version 1
+ * Note:The good news for audio is that, with one exception, 
+ * it's entirely backwards compatible with 1.2.
+ * That one really important exception: The audio callback 
+ * does NOT start with a fully initialized buffer anymore. 
+ * You must fully write to the buffer in all cases. In this 
+ * example it is SDL_memset(stream, 0, len);
  *
  * Version 2.0
  */
@@ -60,7 +63,6 @@ static  Uint8  *audio_pos;
 /* The audio function callback takes the following parameters: 
  * stream: A pointer to the audio buffer to be filled 
  * len: The length (in bytes) of the audio buffer 
- * 回调函数
 */ 
 void  fill_audio(void *udata,Uint8 *stream,int len){ 
 	//SDL 2.0
@@ -82,7 +84,17 @@ int main(int argc, char* argv[])
 	int				i, audioStream;
 	AVCodecContext	*pCodecCtx;
 	AVCodec			*pCodec;
+	AVPacket		*packet;
+	uint8_t			*out_buffer;
+	AVFrame			*pFrame;
+	SDL_AudioSpec wanted_spec;
+	uint32_t ret,len = 0;
+	int got_picture;
+	int index = 0;
+	int64_t in_channel_layout;
+	struct SwrContext *au_convert_ctx;
 
+	FILE *pFile=NULL;
 	char url[]="WavinFlag.aac";
 
 	av_register_all();
@@ -130,12 +142,12 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	FILE *pFile=NULL;
+	
 #if OUTPUT_PCM
 	pFile=fopen("output.pcm", "wb");
 #endif
 
-	AVPacket *packet=(AVPacket *)av_malloc(sizeof(AVPacket));
+	packet=(AVPacket *)av_malloc(sizeof(AVPacket));
 	av_init_packet(packet);
 
 	//Out Audio Param
@@ -147,9 +159,7 @@ int main(int argc, char* argv[])
 	//Out Buffer Size
 	int out_buffer_size=av_samples_get_buffer_size(NULL,out_channels ,out_nb_samples,out_sample_fmt, 1);
 
-	uint8_t *out_buffer=(uint8_t *)av_malloc(MAX_AUDIO_FRAME_SIZE*2);
-
-	AVFrame	*pFrame;
+	out_buffer=(uint8_t *)av_malloc(MAX_AUDIO_FRAME_SIZE*2);
 	pFrame=avcodec_alloc_frame();
 //SDL------------------
 #if USE_SDL
@@ -159,7 +169,6 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	//SDL_AudioSpec
-	SDL_AudioSpec wanted_spec;
 	wanted_spec.freq = out_sample_rate; 
 	wanted_spec.format = AUDIO_S16SYS; 
 	wanted_spec.channels = out_channels; 
@@ -178,13 +187,10 @@ int main(int argc, char* argv[])
 	printf("Channels:\t %d\n", pCodecCtx->channels);
 	printf("Sample per Second\t %d \n", pCodecCtx->sample_rate);
 
-	uint32_t ret,len = 0;
-	int got_picture;
-	int index = 0;
 	//FIX:Some Codec's Context Information is missing
-	int64_t in_channel_layout=av_get_default_channel_layout(pCodecCtx->channels);
+	in_channel_layout=av_get_default_channel_layout(pCodecCtx->channels);
 	//Swr
-	struct SwrContext *au_convert_ctx;
+
 	au_convert_ctx = swr_alloc();
 	au_convert_ctx=swr_alloc_set_opts(au_convert_ctx,out_channel_layout, out_sample_fmt, out_sample_rate,
 		in_channel_layout,pCodecCtx->sample_fmt , pCodecCtx->sample_rate,0, NULL);
