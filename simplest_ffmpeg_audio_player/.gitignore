@@ -2,3 +2,6 @@
 Debug/
 Release/
 *.pcm
+
+*.exe
+*.obj
