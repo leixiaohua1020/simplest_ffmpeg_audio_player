@@ -1,6 +1,6 @@
 /**
- * 最简单的基于FFmpeg的音频播放器 2 (SDL 2.0)
- * Simplest FFmpeg Audio Player 2 (SDL 2.0)
+ * 最简单的基于FFmpeg的音频播放器 2 
+ * Simplest FFmpeg Audio Player 2 
  *
  * 雷霄骅 Lei Xiaohua
  * leixiaohua1020@126.com
@@ -36,15 +36,29 @@
 
 #define __STDC_CONSTANT_MACROS
 
+#ifdef _WIN32
+//Windows
 extern "C"
 {
 #include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
 #include "libswresample/swresample.h"
-//SDL
 #include "sdl/SDL.h"
-#include "sdl/SDL_thread.h"
 };
+#else
+//Linux...
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswresample/swresample.h>
+#include <sdl2/SDL.h>
+#ifdef __cplusplus
+};
+#endif
+#endif
 
 #define MAX_AUDIO_FRAME_SIZE 192000 // 1 second of 48khz 32bit audio
 
