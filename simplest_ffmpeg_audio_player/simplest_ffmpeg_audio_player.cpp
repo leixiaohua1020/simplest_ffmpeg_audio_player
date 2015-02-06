@@ -102,7 +102,8 @@ int main(int argc, char* argv[])
 	uint8_t			*out_buffer;
 	AVFrame			*pFrame;
 	SDL_AudioSpec wanted_spec;
-	uint32_t ret,len = 0;
+    int ret;
+	uint32_t len = 0;
 	int got_picture;
 	int index = 0;
 	int64_t in_channel_layout;
@@ -174,7 +175,7 @@ int main(int argc, char* argv[])
 	int out_buffer_size=av_samples_get_buffer_size(NULL,out_channels ,out_nb_samples,out_sample_fmt, 1);
 
 	out_buffer=(uint8_t *)av_malloc(MAX_AUDIO_FRAME_SIZE*2);
-	pFrame=avcodec_alloc_frame();
+	pFrame=av_frame_alloc();
 //SDL------------------
 #if USE_SDL
 	//Init
@@ -220,7 +221,7 @@ int main(int argc, char* argv[])
 			if ( got_picture > 0 ){
 				swr_convert(au_convert_ctx,&out_buffer, MAX_AUDIO_FRAME_SIZE,(const uint8_t **)pFrame->data , pFrame->nb_samples);
 #if 1
-				printf("index:%5d\t pts:%I64d\t packet size:%d\n",index,packet->pts,packet->size);
+				printf("index:%5d\t pts:%lld\t packet size:%d\n",index,packet->pts,packet->size);
 #endif
 
 #if USE_SDL
