@@ -14,7 +14,7 @@
     <ProjectGuid>{60A58351-3914-44B7-8B21-F6663172B211}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>simplest_ffmpeg_audio_player</RootNamespace>
-    <ProjectName>simplest_ffmpeg_audio_player_2</ProjectName>
+    <ProjectName>simplest_ffmpeg_audio_player2</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
