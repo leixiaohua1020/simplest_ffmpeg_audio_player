@@ -1,7 +1,9 @@
-#¹ýÂË
 Debug/
 Release/
-*.pcm
 
+*.pcm
 *.exe
 *.obj
+*.out
+*.exe.manifest
+*.out.dSYM/
