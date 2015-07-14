@@ -167,7 +167,8 @@ int main(int argc, char* argv[])
 
 	//Out Audio Param
 	uint64_t out_channel_layout=AV_CH_LAYOUT_STEREO;
-	int out_nb_samples=1024;
+	//nb_samples: AAC-1024 MP3-1152
+	int out_nb_samples=pCodecCtx->frame_size;
 	AVSampleFormat out_sample_fmt=AV_SAMPLE_FMT_S16;
 	int out_sample_rate=44100;
 	int out_channels=av_get_channel_layout_nb_channels(out_channel_layout);
@@ -197,10 +198,6 @@ int main(int argc, char* argv[])
 		return -1; 
 	} 
 #endif
-	printf("Bitrate:\t %3d\n", pFormatCtx->bit_rate);
-	printf("Decoder Name:\t %s\n", pCodecCtx->codec->long_name);
-	printf("Channels:\t %d\n", pCodecCtx->channels);
-	printf("Sample per Second\t %d \n", pCodecCtx->sample_rate);
 
 	//FIX:Some Codec's Context Information is missing
 	in_channel_layout=av_get_default_channel_layout(pCodecCtx->channels);
@@ -210,9 +207,9 @@ int main(int argc, char* argv[])
 	au_convert_ctx=swr_alloc_set_opts(au_convert_ctx,out_channel_layout, out_sample_fmt, out_sample_rate,
 		in_channel_layout,pCodecCtx->sample_fmt , pCodecCtx->sample_rate,0, NULL);
 	swr_init(au_convert_ctx);
+
 	while(av_read_frame(pFormatCtx, packet)>=0){
 		if(packet->stream_index==audioStream){
-
 			ret = avcodec_decode_audio4( pCodecCtx, pFrame,&got_picture, packet);
 			if ( ret < 0 ) {
                 printf("Error in decoding audio frame.\n");
@@ -224,36 +221,26 @@ int main(int argc, char* argv[])
 				printf("index:%5d\t pts:%lld\t packet size:%d\n",index,packet->pts,packet->size);
 #endif
 
-#if USE_SDL
-				//FIX:FLAC,MP3,AAC Different number of samples
-				if(wanted_spec.samples!=pFrame->nb_samples){
-					SDL_CloseAudio();
-					out_nb_samples=pFrame->nb_samples;
-					out_buffer_size=av_samples_get_buffer_size(NULL,out_channels ,out_nb_samples,out_sample_fmt, 1);
-					wanted_spec.samples=out_nb_samples;
-					SDL_OpenAudio(&wanted_spec, NULL);
-				}
-#endif
 
 #if OUTPUT_PCM
 				//Write PCM
 				fwrite(out_buffer, 1, out_buffer_size, pFile);
 #endif
-				
 				index++;
 			}
-//SDL------------------
+
 #if USE_SDL
+			while(audio_len>0)//Wait until finish
+				SDL_Delay(1); 
+
 			//Set audio buffer (PCM data)
 			audio_chunk = (Uint8 *) out_buffer; 
 			//Audio buffer length
 			audio_len =out_buffer_size;
-
 			audio_pos = audio_chunk;
+
 			//Play
 			SDL_PauseAudio(0);
-			while(audio_len>0)//Wait until finish
-				SDL_Delay(1); 
 #endif
 		}
 		av_free_packet(packet);

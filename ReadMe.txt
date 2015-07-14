@@ -10,6 +10,10 @@ http://blog.csdn.net/leixiaohua1020
 本程序实现了音频的解码和播放。
 是最简单的FFmpeg音频解码方面的教程。
 通过学习本例子可以了解FFmpeg的解码流程。
+项目包含3个工程：
+simplest_ffmpeg_audio_player：基于FFmpeg+SDL的音频解码器
+simplest_ffmpeg_audio_decoder：音频解码器。使用了libavcodec和libavformat。
+simplest_audio_play_sdl2：使用SDL2播放PCM采样数据的例子。
 
 该版本使用SDL 2.0替换了第一个版本中的SDL 1.0。
 注意：SDL 2.0中音频解码的API并无变化。唯一变化的地方在于
@@ -17,6 +21,11 @@ http://blog.csdn.net/leixiaohua1020
 本例子中即SDL_memset(stream, 0, len);
 
 This software decode and play audio streams.
+Suitable for the beginner of FFmpeg.
+The solution contains 3 projects:
+simplest_ffmpeg_audio_player: Audio player based on FFmpeg and SDL.
+simplest_ffmpeg_audio_decoder: Audio decoder. Uses libavcodec and libavformat.
+simplest_audio_play_sdl2: Example about using SDL2 play PCM data.
 
 This version use SDL 2.0 instead of SDL 1.2 in version 1
 Note:The good news for audio is that, with one exception, 
