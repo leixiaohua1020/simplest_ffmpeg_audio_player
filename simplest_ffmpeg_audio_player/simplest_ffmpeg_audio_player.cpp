@@ -81,8 +81,9 @@ static  Uint8  *audio_pos;
 void  fill_audio(void *udata,Uint8 *stream,int len){ 
 	//SDL 2.0
 	SDL_memset(stream, 0, len);
-	if(audio_len==0)		/*  Only  play  if  we  have  data  left  */ 
-			return; 
+	if(audio_len==0)
+		return; 
+
 	len=(len>audio_len?audio_len:len);	/*  Mix  as  much  data  as  possible  */ 
 
 	SDL_MixAudio(stream,audio_pos,len,SDL_MIX_MAXVOLUME);
@@ -110,7 +111,7 @@ int main(int argc, char* argv[])
 	struct SwrContext *au_convert_ctx;
 
 	FILE *pFile=NULL;
-	char url[]="WavinFlag.aac";
+	char url[]="xiaoqingge.mp3";
 
 	av_register_all();
 	avformat_network_init();
@@ -208,6 +209,9 @@ int main(int argc, char* argv[])
 		in_channel_layout,pCodecCtx->sample_fmt , pCodecCtx->sample_rate,0, NULL);
 	swr_init(au_convert_ctx);
 
+	//Play
+	SDL_PauseAudio(0);
+
 	while(av_read_frame(pFormatCtx, packet)>=0){
 		if(packet->stream_index==audioStream){
 			ret = avcodec_decode_audio4( pCodecCtx, pFrame,&got_picture, packet);
@@ -239,8 +243,6 @@ int main(int argc, char* argv[])
 			audio_len =out_buffer_size;
 			audio_pos = audio_chunk;
 
-			//Play
-			SDL_PauseAudio(0);
 #endif
 		}
 		av_free_packet(packet);
@@ -252,14 +254,12 @@ int main(int argc, char* argv[])
 	SDL_CloseAudio();//Close SDL
 	SDL_Quit();
 #endif
-	// Close file
+	
 #if OUTPUT_PCM
 	fclose(pFile);
 #endif
 	av_free(out_buffer);
-	// Close the codec
 	avcodec_close(pCodecCtx);
-	// Close the video file
 	avformat_close_input(&pFormatCtx);
 
 	return 0;
