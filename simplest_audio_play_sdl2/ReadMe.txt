@@ -7,6 +7,7 @@
  Communication University of China / Digital TV Technology
  http://blog.csdn.net/leixiaohua1020
 
+ 
  本程序使用SDL2播放PCM音频采样数据。SDL实际上是对底层绘图
  API（Direct3D，OpenGL）的封装，使用起来明显简单于直接调用底层
  API。
@@ -21,6 +22,7 @@
  SDL_PauseAudio(): 播放音频数据。
  SDL_Delay(): 延时等待播放完成。
 
+ 
  This software plays PCM raw audio data using SDL2.
  SDL is a wrapper of low-level API (DirectSound).
  Use SDL is much easier than directly call these low-level API.
